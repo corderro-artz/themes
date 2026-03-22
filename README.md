@@ -11,7 +11,7 @@ VaporSoft theme set with light, dark, and OLED variants inspired by the VaporSof
 ## Install locally
 
 1. Open this folder in VS Code.
-2. Press F5 to launch the Extension Development Host.
+2. Press F5 to launch the Extension Development Host. If prompted, create a launch configuration and choose VS Code Extension Development.
 3. In the new window, run Preferences: Color Theme and pick a VaporSoft theme.
 
 ## Build
