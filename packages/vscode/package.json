@@ -23,11 +23,11 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/VaporSoft/vaporsoft-themes"
+		"url": "https://github.com/corderro-artz/themes"
 	},
-	"homepage": "https://github.com/VaporSoft/vaporsoft-themes",
+	"homepage": "https://github.com/corderro-artz/themes",
 	"bugs": {
-		"url": "https://github.com/VaporSoft/vaporsoft-themes/issues"
+		"url": "https://github.com/corderro-artz/themes/issues"
 	},
 	"contributes": {
 		"themes": [

@@ -3,8 +3,10 @@
 ## Quick start
 
 1. Install Node.js (LTS).
-2. Rebuild themes:
-   - PowerShell: `node .\scripts\build-full-themes.js`
+2. Go to the VS Code package:
+  - `cd packages\vscode`
+3. Rebuild themes:
+  - PowerShell: `node .\scripts\build-full-themes.js`
 
 ## Debugging
 
@@ -17,5 +19,5 @@
 
 ## Notes
 
-- Theme outputs live in `themes/`.
-- Base reference themes are in `themes/base/` and are used by the build script.
+- Theme outputs live in `packages/vscode/themes/`.
+- Base reference themes are in `packages/vscode/themes/base/` and are used by the build script.
