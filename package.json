@@ -1,0 +1,51 @@
+{
+	"name": "vaporsoft-themes",
+	"displayName": "VaporSoft Themes",
+	"description": "VaporSoft theme set with light, dark, and OLED variants inspired by the VaporSoft brand palette.",
+	"version": "0.1.0",
+	"publisher": "vaporsoft",
+	"author": "Corderro Artz (corderro-artz)",
+	"company": "VaporSoft",
+	"license": "MIT",
+	"engines": {
+		"vscode": "^1.95.0"
+	},
+	"categories": [
+		"Themes"
+	],
+	"keywords": [
+		"theme",
+		"color theme",
+		"vaporsoft",
+		"light",
+		"dark",
+		"oled"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/VaporSoft/vaporsoft-themes"
+	},
+	"homepage": "https://github.com/VaporSoft/vaporsoft-themes",
+	"bugs": {
+		"url": "https://github.com/VaporSoft/vaporsoft-themes/issues"
+	},
+	"contributes": {
+		"themes": [
+			{
+				"label": "VaporSoft Light",
+				"uiTheme": "vs",
+				"path": "./themes/vaporsoft-light.json"
+			},
+			{
+				"label": "VaporSoft Dark",
+				"uiTheme": "vs-dark",
+				"path": "./themes/vaporsoft-dark.json"
+			},
+			{
+				"label": "VaporSoft OLED",
+				"uiTheme": "vs-dark",
+				"path": "./themes/vaporsoft-oled.json"
+			}
+		]
+	}
+}
