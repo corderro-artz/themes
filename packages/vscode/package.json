@@ -1,11 +1,11 @@
 {
 	"name": "vaporsoft-themes",
-	"displayName": "VaporSoft Themes",
-	"description": "VaporSoft theme set with light, dark, and OLED variants inspired by the VaporSoft brand palette.",
-	"version": "0.1.0",
+	"displayName": "Vaporsoft Themes",
+	"description": "Vaporsoft theme set with light, dark, and high contrast variants inspired by the Vaporsoft brand palette.",
+	"version": "1.0.0",
 	"publisher": "vaporsoft",
 	"author": "Corderro Artz (corderro-artz)",
-	"company": "VaporSoft",
+	"company": "Vaporsoft",
 	"license": "MIT",
 	"engines": {
 		"vscode": "^1.95.0"
@@ -19,7 +19,7 @@
 		"vaporsoft",
 		"light",
 		"dark",
-		"oled"
+		"high contrast"
 	],
 	"repository": {
 		"type": "git",
@@ -29,22 +29,38 @@
 	"bugs": {
 		"url": "https://github.com/corderro-artz/themes/issues"
 	},
+	"icon": "assets/vaporsoft-logo.png",
 	"contributes": {
 		"themes": [
 			{
-				"label": "VaporSoft Light",
+				"label": "Vaporsoft Light",
 				"uiTheme": "vs",
 				"path": "./themes/vaporsoft-light.json"
 			},
 			{
-				"label": "VaporSoft Dark",
+				"label": "Vaporsoft Dark",
 				"uiTheme": "vs-dark",
 				"path": "./themes/vaporsoft-dark.json"
 			},
 			{
-				"label": "VaporSoft OLED",
+				"label": "Vaporsoft Dark High Contrast",
+				"uiTheme": "hc-black",
+				"path": "./themes/vaporsoft-dark-high-contrast.json"
+			},
+			{
+				"label": "Vaporsoft Light High Contrast",
+				"uiTheme": "hc-light",
+				"path": "./themes/vaporsoft-light-high-contrast.json"
+			},
+			{
+				"label": "Vaporsoft Light Flat",
+				"uiTheme": "vs",
+				"path": "./themes/vaporsoft-light-flat.json"
+			},
+			{
+				"label": "Vaporsoft Dark Flat",
 				"uiTheme": "vs-dark",
-				"path": "./themes/vaporsoft-oled.json"
+				"path": "./themes/vaporsoft-dark-flat.json"
 			}
 		]
 	}

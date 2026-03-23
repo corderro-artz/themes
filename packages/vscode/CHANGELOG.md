@@ -1,5 +1,5 @@
 # Changelog
 
-## 0.1.0
+## 1.0.0
 
-- Initial release with VaporSoft Light, Dark, and OLED.
+- Initial release with Vaporsoft Light, Dark, and High Contrast, plus flat variants.

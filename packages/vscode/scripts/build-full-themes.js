@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { runValidation } = require("./validate-theme-coverage");
 
 function stripJsonComments(input) {
 	let inString = false;
@@ -152,6 +153,20 @@ function formatColor(color) {
 		return `#${r}${g}${b}${a}`;
 	}
 	return `#${r}${g}${b}`;
+}
+
+function withAlpha(value, alpha) {
+	const parsed = parseColor(value);
+	if (!parsed) {
+		return value;
+	}
+	return formatColor({
+		r: parsed.r,
+		g: parsed.g,
+		b: parsed.b,
+		a: alpha,
+		hasAlpha: true,
+	});
 }
 
 function needsAlpha(key) {
@@ -342,7 +357,7 @@ const palettes = {
 		panel: "#0b0c10",
 		fg: "#f2ede6",
 		fgMuted: "#f2ede6c7",
-		line: "#f2ede61f",
+		line: "#f2ede624",
 		lineStrong: "#f2ede633",
 		accent: "#a11f31",
 		accentHover: "#ba3447",
@@ -350,22 +365,106 @@ const palettes = {
 		warning: "#e0c28c",
 		info: "#7fb0c4",
 	},
-	oled: {
+	highContrastDark: {
 		bg: "#000000",
 		bgAlt: "#000000",
 		bgAlt2: "#000000",
 		panel: "#000000",
 		fg: "#f2ede6",
 		fgMuted: "#f2ede6c7",
-		line: "#f2ede61f",
-		lineStrong: "#f2ede633",
+		line: "#f2ede64d",
+		lineStrong: "#f2ede680",
 		accent: "#a11f31",
 		accentHover: "#ba3447",
 		success: "#a6c08a",
 		warning: "#e0c28c",
 		info: "#7fb0c4",
 	},
+	highContrastLight: {
+		bg: "#f4efe8",
+		bgAlt: "#f1ece4",
+		bgAlt2: "#ede7df",
+		panel: "#f8f3ed",
+		fg: "#121318",
+		fgMuted: "#121418b8",
+		line: "#12141833",
+		lineStrong: "#12141866",
+		accent: "#a11f31",
+		accentHover: "#b92f44",
+		success: "#3d6b52",
+		warning: "#6a4a25",
+		info: "#3b5b6f",
+	},
 };
+
+function createFlatOverrides(baseOverrides, palette) {
+	return {
+		...baseOverrides,
+		"activityBar.background": palette.bgAlt,
+		"sideBar.background": palette.bgAlt,
+		"sideBarSectionHeader.background": palette.bgAlt,
+		"panel.background": palette.bgAlt2,
+		"titleBar.activeBackground": palette.bgAlt,
+		"titleBar.inactiveBackground": palette.bgAlt,
+		"editorGroupHeader.tabsBackground": palette.bgAlt2,
+		"tab.activeBackground": palette.bg,
+		"tab.inactiveBackground": palette.bgAlt2,
+		"statusBar.background": palette.bgAlt2,
+		"editorHoverWidget.background": palette.panel,
+		"editorSuggestWidget.background": palette.panel,
+		"editorWidget.background": palette.panel,
+		"input.background": palette.panel,
+		"dropdown.background": palette.panel,
+		"chat.inputBackground": palette.panel,
+		"notificationCenterHeader.background": palette.bgAlt,
+		"notifications.background": palette.bgAlt,
+		"peekViewEditor.background": palette.bgAlt,
+		"peekViewResult.background": palette.bg,
+		"peekViewTitle.background": palette.bgAlt,
+		"debugToolBar.background": palette.bgAlt,
+		"activityBar.border": "#00000000",
+		"sideBar.border": "#00000000",
+		"sideBarSectionHeader.border": "#00000000",
+		"editorGroup.border": "#00000000",
+		"editorGroupHeader.border": "#00000000",
+		"editorGroupHeader.tabsBorder": "#00000000",
+		"tab.border": "#00000000",
+		"panel.border": "#00000000",
+		"statusBar.border": "#00000000",
+		"input.border": "#00000000",
+		"dropdown.border": "#00000000",
+		"editorHoverWidget.border": "#00000000",
+		"editorSuggestWidget.border": "#00000000",
+		"editorWidget.border": "#00000000",
+		"widget.border": "#00000000",
+		"notifications.border": "#00000000",
+		"activityBar.activeBorder": palette.accent,
+		"panelTitle.activeBorder": palette.accent,
+		"tab.activeBorderTop": withAlpha(palette.accent, 0.4),
+		"tab.unfocusedActiveBorderTop": withAlpha(palette.accent, 0.2),
+		"tab.activeBorder": "#00000000",
+		"tab.unfocusedActiveBorder": "#00000000",
+		"focusBorder": palette.accent,
+		"editor.selectionBackground": withAlpha(palette.accent, 0.24),
+		"editor.selectionHighlightBackground": withAlpha(palette.accent, 0.16),
+		"editor.inactiveSelectionBackground": withAlpha(palette.accent, 0.12),
+		"editor.findMatchBackground": withAlpha(palette.accent, 0.32),
+		"editor.findMatchHighlightBackground": withAlpha(palette.accent, 0.18),
+		"editor.wordHighlightBackground": withAlpha(palette.accent, 0.12),
+		"editor.wordHighlightStrongBackground": withAlpha(palette.accent, 0.18),
+		"editor.lineHighlightBackground": withAlpha(palette.fg, 0.04),
+		"editorBracketMatch.background": withAlpha(palette.accent, 0.16),
+		"list.activeSelectionBackground": withAlpha(palette.accent, 0.2),
+		"list.inactiveSelectionBackground": withAlpha(palette.accent, 0.12),
+		"list.hoverBackground": withAlpha(palette.fg, 0.05),
+		"list.focusBackground": withAlpha(palette.accent, 0.22),
+		"statusBarItem.hoverBackground": withAlpha(palette.accent, 0.14),
+		"statusBarItem.prominentBackground": withAlpha(palette.accent, 0.12),
+		"scrollbarSlider.background": withAlpha(palette.fg, 0.14),
+		"scrollbarSlider.hoverBackground": withAlpha(palette.fg, 0.22),
+		"scrollbarSlider.activeBackground": withAlpha(palette.fg, 0.3),
+	};
+}
 
 const lightExtras = {
 	"foreground": "#121318",
@@ -408,25 +507,25 @@ const lightExtras = {
 	"activityBarBadge.foreground": "#f4efe8",
 	"sideBar.background": "#f1ece4",
 	"sideBar.foreground": "#121318",
-	"sideBar.border": "#1214181F",
+	"sideBar.border": "#a11f3133",
 	"sideBarTitle.foreground": "#121318",
 	"sideBarSectionHeader.background": "#f1ece4",
 	"sideBarSectionHeader.border": "#1214181F",
 	"sideBarSectionHeader.foreground": "#121318",
-	"editorGroup.border": "#1214181F",
+	"editorGroup.border": "#12141833",
 	"editorGroupHeader.tabsBackground": "#f1ece4",
-	"editorGroupHeader.tabsBorder": "#1214181F",
+	"editorGroupHeader.tabsBorder": "#12141833",
 	"editorGroup.dropBackground": "#a11f3126",
 	"tab.activeBackground": "#f4efe8",
 	"tab.activeForeground": "#121318",
 	"tab.inactiveBackground": "#ede7df",
 	"tab.inactiveForeground": "#121418B8",
-	"tab.border": "#1214181F",
+	"tab.border": "#00000000",
 	"tab.activeBorderTop": "#a11f31",
 	"tab.unfocusedActiveBorderTop": "#a11f311F",
-	"statusBar.background": "#ede7df",
+	"statusBar.background": "#e9e2da",
 	"statusBar.foreground": "#121318",
-	"statusBar.border": "#1214181F",
+	"statusBar.border": "#12141833",
 	"statusBarItem.hoverBackground": "#a11f311F",
 	"statusBarItem.remoteBackground": "#a11f31",
 	"statusBarItem.remoteForeground": "#f4efe8",
@@ -436,8 +535,8 @@ const lightExtras = {
 	"titleBar.activeForeground": "#121318",
 	"titleBar.inactiveBackground": "#f1ece4",
 	"titleBar.inactiveForeground": "#121418B8",
-	"panel.background": "#f1ece4",
-	"panel.border": "#1214181F",
+	"panel.background": "#f8f3ed",
+	"panel.border": "#12141833",
 	"panelTitle.activeForeground": "#121318",
 	"panelTitle.inactiveForeground": "#121418B8",
 	"panelTitle.activeBorder": "#a11f31",
@@ -506,7 +605,7 @@ const darkExtras = {
 	"editorCursor.foreground": "#a11f31",
 	"editorLineNumber.foreground": "#6f6a64",
 	"editorLineNumber.activeForeground": "#f2ede6",
-	"editorIndentGuide.background1": "#f2ede61F",
+	"editorIndentGuide.background1": "#f2ede624",
 	"editorIndentGuide.activeBackground1": "#f2ede633",
 	"editor.selectionBackground": "#a11f314D",
 	"editor.selectionHighlightBackground": "#a11f3126",
@@ -527,34 +626,35 @@ const darkExtras = {
 	"editorSuggestWidget.border": "#f2ede633",
 	"editorWidget.background": "#0b0c10",
 	"editorWidget.border": "#f2ede633",
-	"activityBar.background": "#07080b",
+	"activityBar.background": "#0a0b10",
 	"activityBar.activeBorder": "#a11f31",
 	"activityBar.foreground": "#f2ede6",
 	"activityBar.inactiveForeground": "#f2ede6C7",
-	"activityBar.border": "#f2ede61F",
+	"activityBar.border": "#f2ede624",
 	"activityBarBadge.background": "#a11f31",
 	"activityBarBadge.foreground": "#f2ede6",
 	"sideBar.background": "#0a0b10",
 	"sideBar.foreground": "#f2ede6",
-	"sideBar.border": "#f2ede61F",
+	"sideBar.border": "#a11f3133",
 	"sideBarTitle.foreground": "#f2ede6",
 	"sideBarSectionHeader.background": "#0a0b10",
-	"sideBarSectionHeader.border": "#f2ede61F",
+	"sideBarSectionHeader.border": "#f2ede624",
 	"sideBarSectionHeader.foreground": "#f2ede6",
-	"editorGroup.border": "#f2ede61F",
+	"editorGroup.border": "#f2ede633",
+	"editorGroupHeader.border": "#00000000",
 	"editorGroupHeader.tabsBackground": "#0a0b10",
-	"editorGroupHeader.tabsBorder": "#f2ede61F",
+	"editorGroupHeader.tabsBorder": "#f2ede633",
 	"editorGroup.dropBackground": "#a11f3126",
 	"tab.activeBackground": "#07080b",
 	"tab.activeForeground": "#f2ede6",
 	"tab.inactiveBackground": "#0a0b10",
 	"tab.inactiveForeground": "#f2ede6C7",
-	"tab.border": "#f2ede61F",
+	"tab.border": "#00000000",
 	"tab.activeBorderTop": "#a11f31",
 	"tab.unfocusedActiveBorderTop": "#a11f311F",
-	"statusBar.background": "#0a0b10",
+	"statusBar.background": "#0f1118",
 	"statusBar.foreground": "#f2ede6",
-	"statusBar.border": "#f2ede61F",
+	"statusBar.border": "#f2ede633",
 	"statusBarItem.hoverBackground": "#a11f3126",
 	"statusBarItem.remoteBackground": "#a11f31",
 	"statusBarItem.remoteForeground": "#f2ede6",
@@ -564,8 +664,8 @@ const darkExtras = {
 	"titleBar.activeForeground": "#f2ede6",
 	"titleBar.inactiveBackground": "#07080b",
 	"titleBar.inactiveForeground": "#f2ede6C7",
-	"panel.background": "#0a0b10",
-	"panel.border": "#f2ede61F",
+	"panel.background": "#0d0f15",
+	"panel.border": "#f2ede633",
 	"panelTitle.activeForeground": "#f2ede6",
 	"panelTitle.inactiveForeground": "#f2ede6C7",
 	"panelTitle.activeBorder": "#a11f31",
@@ -612,14 +712,14 @@ const darkExtras = {
 	"notificationCenterHeader.background": "#0a0b10",
 	"notifications.background": "#0a0b10",
 	"notifications.foreground": "#f2ede6",
-	"notifications.border": "#f2ede61F",
+	"notifications.border": "#f2ede624",
 	"peekViewEditor.background": "#0a0b10",
 	"peekViewResult.background": "#0f1118",
 	"peekViewTitle.background": "#0a0b10",
 	"debugToolBar.background": "#0a0b10",
 };
 
-const oledExtras = {
+const highContrastDarkExtras = {
 	"foreground": "#f2ede6",
 	"descriptionForeground": "#f2ede6C7",
 	"focusBorder": "#a11f31",
@@ -630,7 +730,7 @@ const oledExtras = {
 	"editorCursor.foreground": "#a11f31",
 	"editorLineNumber.foreground": "#6f6a64",
 	"editorLineNumber.activeForeground": "#f2ede6",
-	"editorIndentGuide.background1": "#f2ede61F",
+	"editorIndentGuide.background1": "#f2ede624",
 	"editorIndentGuide.activeBackground1": "#f2ede633",
 	"editor.selectionBackground": "#a11f314D",
 	"editor.selectionHighlightBackground": "#a11f3126",
@@ -645,40 +745,41 @@ const oledExtras = {
 	"editorGutter.addedBackground": "#a6c08a",
 	"editorGutter.modifiedBackground": "#7fb0c4",
 	"editorGutter.deletedBackground": "#a11f31",
-	"editorHoverWidget.background": "#000000",
+	"editorHoverWidget.background": "#05060a",
 	"editorHoverWidget.border": "#f2ede633",
-	"editorSuggestWidget.background": "#000000",
+	"editorSuggestWidget.background": "#05060a",
 	"editorSuggestWidget.border": "#f2ede633",
-	"editorWidget.background": "#000000",
+	"editorWidget.background": "#05060a",
 	"editorWidget.border": "#f2ede633",
 	"activityBar.background": "#000000",
 	"activityBar.activeBorder": "#a11f31",
 	"activityBar.foreground": "#f2ede6",
 	"activityBar.inactiveForeground": "#f2ede6C7",
-	"activityBar.border": "#f2ede61F",
+	"activityBar.border": "#f2ede624",
 	"activityBarBadge.background": "#a11f31",
 	"activityBarBadge.foreground": "#f2ede6",
 	"sideBar.background": "#000000",
 	"sideBar.foreground": "#f2ede6",
-	"sideBar.border": "#f2ede61F",
+	"sideBar.border": "#a11f3133",
 	"sideBarTitle.foreground": "#f2ede6",
 	"sideBarSectionHeader.background": "#000000",
-	"sideBarSectionHeader.border": "#f2ede61F",
+	"sideBarSectionHeader.border": "#f2ede624",
 	"sideBarSectionHeader.foreground": "#f2ede6",
-	"editorGroup.border": "#f2ede61F",
+	"editorGroup.border": "#f2ede633",
+	"editorGroupHeader.border": "#00000000",
 	"editorGroupHeader.tabsBackground": "#000000",
-	"editorGroupHeader.tabsBorder": "#f2ede61F",
+	"editorGroupHeader.tabsBorder": "#f2ede64d",
 	"editorGroup.dropBackground": "#a11f3126",
 	"tab.activeBackground": "#000000",
 	"tab.activeForeground": "#f2ede6",
 	"tab.inactiveBackground": "#000000",
 	"tab.inactiveForeground": "#f2ede6C7",
-	"tab.border": "#f2ede61F",
+	"tab.border": "#00000000",
 	"tab.activeBorderTop": "#a11f31",
 	"tab.unfocusedActiveBorderTop": "#a11f311F",
 	"statusBar.background": "#000000",
 	"statusBar.foreground": "#f2ede6",
-	"statusBar.border": "#f2ede61F",
+	"statusBar.border": "#f2ede633",
 	"statusBarItem.hoverBackground": "#a11f3126",
 	"statusBarItem.remoteBackground": "#a11f31",
 	"statusBarItem.remoteForeground": "#f2ede6",
@@ -689,7 +790,7 @@ const oledExtras = {
 	"titleBar.inactiveBackground": "#000000",
 	"titleBar.inactiveForeground": "#f2ede6C7",
 	"panel.background": "#000000",
-	"panel.border": "#f2ede61F",
+	"panel.border": "#f2ede633",
 	"panelTitle.activeForeground": "#f2ede6",
 	"panelTitle.inactiveForeground": "#f2ede6C7",
 	"panelTitle.activeBorder": "#a11f31",
@@ -736,12 +837,15 @@ const oledExtras = {
 	"notificationCenterHeader.background": "#000000",
 	"notifications.background": "#000000",
 	"notifications.foreground": "#f2ede6",
-	"notifications.border": "#f2ede61F",
-	"peekViewEditor.background": "#000000",
-	"peekViewResult.background": "#000000",
-	"peekViewTitle.background": "#000000",
-	"debugToolBar.background": "#000000",
+	"notifications.border": "#f2ede624",
+	"peekViewEditor.background": "#05060a",
+	"peekViewResult.background": "#05060a",
+	"peekViewTitle.background": "#05060a",
+	"debugToolBar.background": "#05060a",
 };
+
+const lightFlatExtras = createFlatOverrides(lightExtras, palettes.light);
+const darkFlatExtras = createFlatOverrides(darkExtras, palettes.dark);
 
 const lightTokenExtras = [
 	{
@@ -876,7 +980,7 @@ const darkSemanticExtras = {
 };
 
 const lightFull = buildTheme({
-	name: "VaporSoft Light",
+	name: "Vaporsoft Light",
 	type: "light",
 	baseColors: lightVs.colors || {},
 	baseTokenColors: [...(lightVs.tokenColors || []), ...(lightPlus.tokenColors || [])],
@@ -888,7 +992,7 @@ const lightFull = buildTheme({
 });
 
 const darkFull = buildTheme({
-	name: "VaporSoft Dark",
+	name: "Vaporsoft Dark",
 	type: "dark",
 	baseColors: darkVs.colors || {},
 	baseTokenColors: [...(darkVs.tokenColors || []), ...(darkPlus.tokenColors || [])],
@@ -899,20 +1003,61 @@ const darkFull = buildTheme({
 	palette: palettes.dark,
 });
 
-const oledFull = buildTheme({
-	name: "VaporSoft OLED",
+const highContrastDarkFull = buildTheme({
+	name: "Vaporsoft Dark High Contrast",
 	type: "dark",
 	baseColors: darkVs.colors || {},
 	baseTokenColors: [...(darkVs.tokenColors || []), ...(darkPlus.tokenColors || [])],
 	baseSemanticTokens: mergeSemanticTokens(darkVs.semanticTokenColors, darkPlus.semanticTokenColors),
-	overrideColors: oledExtras,
+	overrideColors: highContrastDarkExtras,
 	overrideTokenColors: darkTokenExtras,
 	overrideSemanticTokens: darkSemanticExtras,
-	palette: palettes.oled,
+	palette: palettes.highContrastDark,
+});
+
+const highContrastLightFull = buildTheme({
+	name: "Vaporsoft Light High Contrast",
+	type: "light",
+	baseColors: lightVs.colors || {},
+	baseTokenColors: [...(lightVs.tokenColors || []), ...(lightPlus.tokenColors || [])],
+	baseSemanticTokens: mergeSemanticTokens(lightVs.semanticTokenColors, lightPlus.semanticTokenColors),
+	overrideColors: lightExtras,
+	overrideTokenColors: lightTokenExtras,
+	overrideSemanticTokens: lightSemanticExtras,
+	palette: palettes.highContrastLight,
+});
+
+const lightFlat = buildTheme({
+	name: "Vaporsoft Light Flat",
+	type: "light",
+	baseColors: lightVs.colors || {},
+	baseTokenColors: [...(lightVs.tokenColors || []), ...(lightPlus.tokenColors || [])],
+	baseSemanticTokens: mergeSemanticTokens(lightVs.semanticTokenColors, lightPlus.semanticTokenColors),
+	overrideColors: lightFlatExtras,
+	overrideTokenColors: lightTokenExtras,
+	overrideSemanticTokens: lightSemanticExtras,
+	palette: palettes.light,
+});
+
+const darkFlat = buildTheme({
+	name: "Vaporsoft Dark Flat",
+	type: "dark",
+	baseColors: darkVs.colors || {},
+	baseTokenColors: [...(darkVs.tokenColors || []), ...(darkPlus.tokenColors || [])],
+	baseSemanticTokens: mergeSemanticTokens(darkVs.semanticTokenColors, darkPlus.semanticTokenColors),
+	overrideColors: darkFlatExtras,
+	overrideTokenColors: darkTokenExtras,
+	overrideSemanticTokens: darkSemanticExtras,
+	palette: palettes.dark,
 });
 
 writeTheme(path.join(themeDir, "vaporsoft-light.json"), lightFull);
 writeTheme(path.join(themeDir, "vaporsoft-dark.json"), darkFull);
-writeTheme(path.join(themeDir, "vaporsoft-oled.json"), oledFull);
+writeTheme(path.join(themeDir, "vaporsoft-dark-high-contrast.json"), highContrastDarkFull);
+writeTheme(path.join(themeDir, "vaporsoft-light-high-contrast.json"), highContrastLightFull);
+writeTheme(path.join(themeDir, "vaporsoft-light-flat.json"), lightFlat);
+writeTheme(path.join(themeDir, "vaporsoft-dark-flat.json"), darkFlat);
 
-console.log("Themes rebuilt with full coverage.");
+runValidation({ baseDir, themeDir });
+
+console.log("Themes rebuilt and validated with full coverage.");
